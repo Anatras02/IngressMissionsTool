@@ -69,7 +69,7 @@ for i in range(0, number_of_missions):  # Loop over all missions
     wait_for_it(driver, "//*[contains(text(),'Logo')]", By.XPATH)
 
     # From the config load the mission data
-    titolo = get_config(missions_config, "title").replace("%d", i).replace("%n",number_of_missions)
+    titolo = get_config(missions_config, "title").replace("%d", i).replace("%n",str(number_of_missions))
     descrizione = get_config(missions_config, "description").replace("%d",i)
     logo = get_config(missions_config, "path_logo").replace("%d", i.zfill(2))
     luogo = get_config(missions_config, "location", error=False)
