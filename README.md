@@ -4,7 +4,7 @@ With this tool you only need to choose the portals without worrying about the "m
 This tool can be used if your Ingress account is linked to the 
 It's very easy to use it. Make sure to have the [ChromeDriver](https://chromedriver.chromium.org/downloads) installed as global program and then:
 * Clone the repository.
-* Read the README.md in the config folder and create the files.
+* Read the README.md in the [config folder](https://github.com/Anatras02/IngressMissionsTool/tree/master/config) and create the files.
 * Run ` python __init__.py`
 * A browser tab will open and if `credentials.yaml` exists it will automatically login otherwise you have to login yourself
 * The tool will create the missions and the only thing you have to do is create the "mission path"
