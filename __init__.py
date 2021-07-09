@@ -34,9 +34,11 @@ driver.find_element_by_xpath("//*[contains(@title, 'Accetta tutti')]").click()
 
 # Enter the email and password (only if the credentials are set hence the file exist)
 if credentials is not None:
-    driver.find_element_by_id('email').send_keys(credentials["email"])
-    driver.find_element_by_id('pass').send_keys(credentials["password"])
-    # Effettuo il login e torniamo alla vecchia scheda
+    email = get_config(credentials,"email")
+    password = get_config(credentials,"password")
+    driver.find_element_by_id('email').send_keys(email)
+    driver.find_element_by_id('pass').send_keys(password)
+    # Login 
     driver.find_element_by_xpath("//input[@name='login']").click()
 else:
     # It has to wait until the user manually login
@@ -73,15 +75,10 @@ for i in range(0, numbero_of_missions):  # Loop over all missions
     luogo = get_config(missions_config, "location", error=False)
     passphrase = get_config(missions_config, "passphrase_first_mission", error=False)
 
-    # Find the elements
-    elemento_titolo = driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission name')]")
-    elemento_descrizione = driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission description')]")
-    elemento_logo = driver.find_element_by_id("logo-upload-input")
-
-    # Send the data
-    elemento_titolo.send_keys(titolo)
-    elemento_descrizione.send_keys(descrizione)
-    elemento_logo.send_keys(logo)
+    # Find the elements and send the data
+    driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission name')]").send_keys(titolo)
+    driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission description')]").send_keys(descrizione)
+    driver.find_element_by_id("logo-upload-input").send_keys(logo)
 
     # Go to the next page
     go_next(driver)
