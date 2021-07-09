@@ -1,0 +1,6 @@
+*.pyc
+.idea
+login.yaml
+missions.yaml
+config/login.yaml
+config/missions.yaml

@@ -1,0 +1,111 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
+
+from functions.driver import go_next, wait_for_it, send_keys_delay
+from functions.miscellaneous import load_yaml, get_config
+
+driver = webdriver.Chrome()
+driver.set_window_size(1920, 1080)
+driver.get('https://missions.ingress.com')
+
+# Load the config files
+try:
+    missions_config = load_yaml("missions.yaml")
+except FileNotFoundError:
+    missions_config = None
+try:
+    credentials = load_yaml("login.yaml")
+except FileNotFoundError:
+    credentials = None
+# Press the button to login
+driver.find_element_by_class_name('sign-in-button').click()
+driver.find_element_by_class_name('signin-provider-facebook').click()
+
+# This can be done much better since it waits one second but it could be a longer wait..
+time.sleep(1)
+
+# Change tab and go to the login one
+driver.switch_to.window(driver.window_handles[1])
+
+# Accept the cookies
+driver.find_element_by_xpath("//*[contains(@title, 'Accetta tutti')]").click()
+
+# Enter the email and password (only if the credentials are set hence the file exist)
+if credentials is not None:
+    driver.find_element_by_id('email').send_keys(credentials["email"])
+    driver.find_element_by_id('pass').send_keys(credentials["password"])
+    # Effettuo il login e torniamo alla vecchia scheda
+    driver.find_element_by_xpath("//input[@name='login']").click()
+else:
+    # It has to wait until the user manually login
+    while len(driver.window_handles) > 1:  # It loops until the login window is open
+        continue
+
+# Go back to the main tab
+driver.switch_to.window(driver.window_handles[0])
+
+numbero_of_missions = missions_config["number_of_missions"]
+for i in range(0, numbero_of_missions):  # Loop over all missions
+    i = str(i + 1)
+    # Wait until the new page has loaded
+    wait_for_it(driver, "create-mission-button")
+
+    # Create new mission
+    button = driver.find_element_by_class_name('create-mission-button').click()
+
+    # Wait until the page loads
+    wait_for_it(driver, "bullet")
+
+    # We select the mission type (Sequential or Any Order)
+    mission_type = get_config(missions_config, "mission_type")
+    driver.find_element_by_xpath(f"//*[contains(text(), '{mission_type}')]").click()
+
+    # Go to the next page
+    go_next(driver)
+    wait_for_it(driver, "//*[contains(text(),'Logo')]", By.XPATH)
+
+    # From the config load the mission data
+    titolo = get_config(missions_config, "title").replace("%d", i)
+    descrizione = get_config(missions_config, "description")
+    logo = get_config(missions_config, "path_logo").replace("%d", i.zfill(2))
+    luogo = get_config(missions_config, "location", error=False)
+    passphrase = get_config(missions_config, "passphrase_first_mission", error=False)
+
+    # Find the elements
+    elemento_titolo = driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission name')]")
+    elemento_descrizione = driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission description')]")
+    elemento_logo = driver.find_element_by_id("logo-upload-input")
+
+    # Send the data
+    elemento_titolo.send_keys(titolo)
+    elemento_descrizione.send_keys(descrizione)
+    elemento_logo.send_keys(logo)
+
+    # Go to the next page
+    go_next(driver)
+    wait_for_it(driver, "autocomplete", By.ID)
+
+    # Search the location (key by key) if set
+    if luogo is not None:
+        luogo_elemento = driver.find_element_by_id("autocomplete")
+        send_keys_delay(luogo_elemento, luogo)  # Inviamo le lettere uno ad uno così da poterlo ricercare
+        luogo_elemento.send_keys(Keys.ENTER)
+
+    # We set the first mission to have a passphrase to check if the user is doing the right mission
+    # (if the passphrase is set in the config)
+    if passphrase is not None:
+        wait_for_it(driver, "//div[contains(@class,'number') and text() = 1]", By.XPATH, timeout=3600)
+        driver.find_element_by_xpath("//select[contains(@class,'fill-width')]/option[6]").click()
+        driver.find_element_by_xpath("//textarea[contains(@class,'fill-width')]").send_keys(passphrase)
+        driver.find_element_by_xpath("//input[contains(@placeholder,'Answer to the question')]").send_keys(i)
+
+    # We log in the browser console the last mission inserted just in case we need to remember it
+    wait_for_it(driver, "//div[contains(@class,'number') and text() = 6]", By.XPATH, timeout=3600)
+    ultima_missione = driver.find_elements_by_class_name('title')[-1]
+    ultima_missione = ultima_missione.text.replace("\"", "\\\"").replace("'", "\\'")
+    driver.execute_script(f'console.log("{ultima_missione}")')
+
+    wait_for_it(driver, "mission-description", timeout=3600)
+    go_next(driver)
