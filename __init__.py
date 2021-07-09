@@ -38,7 +38,7 @@ if credentials is not None:
     password = get_config(credentials,"password")
     driver.find_element_by_id('email').send_keys(email)
     driver.find_element_by_id('pass').send_keys(password)
-    # Login 
+    # Login
     driver.find_element_by_xpath("//input[@name='login']").click()
 else:
     # It has to wait until the user manually login
@@ -48,8 +48,8 @@ else:
 # Go back to the main tab
 driver.switch_to.window(driver.window_handles[0])
 
-numbero_of_missions = missions_config["number_of_missions"]
-for i in range(0, numbero_of_missions):  # Loop over all missions
+number_of_missions = missions_config["number_of_missions"]
+for i in range(0, number_of_missions):  # Loop over all missions
     i = str(i + 1)
     # Wait until the new page has loaded
     wait_for_it(driver, "create-mission-button")
@@ -69,8 +69,8 @@ for i in range(0, numbero_of_missions):  # Loop over all missions
     wait_for_it(driver, "//*[contains(text(),'Logo')]", By.XPATH)
 
     # From the config load the mission data
-    titolo = get_config(missions_config, "title").replace("%d", i)
-    descrizione = get_config(missions_config, "description")
+    titolo = get_config(missions_config, "title").replace("%d", i).replace("%n",number_of_missions)
+    descrizione = get_config(missions_config, "description").replace("%d",i)
     logo = get_config(missions_config, "path_logo").replace("%d", i.zfill(2))
     luogo = get_config(missions_config, "location", error=False)
     passphrase = get_config(missions_config, "passphrase_first_mission", error=False)
