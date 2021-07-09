@@ -10,6 +10,9 @@ It's very easy to use it. Make sure to have the [ChromeDriver](https://chromedri
 * The tool will create the missions and the only thing you have to do is create the "mission path".
 * When every mission is done the tool will stop running.
 
+![Alt Text](assets/example.gif)
+
+
 ### Disclaimer
 Read the code to ensure I'm not stealing your credentials. I'm not, but you shouldn't take my word for it. If you don't know how to read it, downloading stuff off the internet and giving it your password is probably a bad idea anyway.
 Also it's not mandatory to insert the password (you can manually login) 😃!
