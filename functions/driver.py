@@ -6,7 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 def go_next(driver):
-    driver.find_element_by_xpath("//*[contains(@ng-click, 'goNext()')]").click()
+    driver.find_element(By.XPATH, "//*[contains(@ng-click, 'goNext()')]").click()
 
 
 def wait_for_it(driver, name, by=By.CLASS_NAME, timeout=60):

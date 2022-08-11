@@ -20,8 +20,8 @@ try:
 except FileNotFoundError:
     credentials = None
 # Press the button to login
-driver.find_element_by_class_name('sign-in-button').click()
-driver.find_element_by_class_name('signin-provider-facebook').click()
+driver.find_element(By.CLASS_NAME, 'sign-in-button').click()
+driver.find_element(By.CLASS_NAME, 'signin-provider-facebook').click()
 
 # This can be done much better since it waits one second but it could be a longer wait..
 time.sleep(1)
@@ -30,16 +30,16 @@ time.sleep(1)
 driver.switch_to.window(driver.window_handles[1])
 
 # Accept the cookies
-driver.find_element_by_xpath("//*[contains(@title, 'Accetta tutti')]").click()
+driver.find_element(By.XPATH, "//*[@data-cookiebanner='accept_button']").click()
 
 # Enter the email and password (only if the credentials are set hence the file exist)
 if credentials is not None:
     email = get_config(credentials,"email")
     password = get_config(credentials,"password")
-    driver.find_element_by_id('email').send_keys(email)
-    driver.find_element_by_id('pass').send_keys(password)
+    driver.find_element(By.ID, 'email').send_keys(email)
+    driver.find_element(By.ID, 'pass').send_keys(password)
     # Login
-    driver.find_element_by_xpath("//input[@name='login']").click()
+    driver.find_element(By.XPATH, "//input[@name='login']").click()
 else:
     # It has to wait until the user manually login
     while len(driver.window_handles) > 1:  # It loops until the login window is open
@@ -55,14 +55,14 @@ for i in range(0, number_of_missions):  # Loop over all missions
     wait_for_it(driver, "create-mission-button")
 
     # Create new mission
-    button = driver.find_element_by_class_name('create-mission-button').click()
+    button = driver.find_element(By.CLASS_NAME, 'create-mission-button').click()
 
     # Wait until the page loads
     wait_for_it(driver, "bullet")
 
     # We select the mission type (Sequential or Any Order)
     mission_type = get_config(missions_config, "mission_type")
-    driver.find_element_by_xpath(f"//*[contains(text(), '{mission_type}')]").click()
+    driver.find_element(By.XPATH, f"//*[contains(text(), '{mission_type}')]").click()
 
     # Go to the next page
     go_next(driver)
@@ -76,9 +76,9 @@ for i in range(0, number_of_missions):  # Loop over all missions
     passphrase = get_config(missions_config, "passphrase_first_mission", error=False)
 
     # Find the elements and send the data
-    driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission name')]").send_keys(titolo)
-    driver.find_element_by_xpath("//*[contains(@placeholder,'Add mission description')]").send_keys(descrizione)
-    driver.find_element_by_id("logo-upload-input").send_keys(logo)
+    driver.find_element(By.XPATH, "//*[contains(@placeholder,'Add mission name')]").send_keys(titolo)
+    driver.find_element(By.XPATH, "//*[contains(@placeholder,'Add mission description')]").send_keys(descrizione)
+    driver.find_element(By.ID, "logo-upload-input").send_keys(logo)
 
     # Go to the next page
     go_next(driver)
@@ -86,7 +86,7 @@ for i in range(0, number_of_missions):  # Loop over all missions
 
     # Search the location (key by key) if set
     if luogo is not None:
-        luogo_elemento = driver.find_element_by_id("autocomplete")
+        luogo_elemento = driver.find_element(By.ID, "autocomplete")
         send_keys_delay(luogo_elemento, luogo)  # Inviamo le lettere uno ad uno così da poterlo ricercare
         luogo_elemento.send_keys(Keys.ENTER)
 
@@ -94,13 +94,13 @@ for i in range(0, number_of_missions):  # Loop over all missions
     # (if the passphrase is set in the config)
     if passphrase is not None:
         wait_for_it(driver, "//div[contains(@class,'number') and text() = 1]", By.XPATH, timeout=3600)
-        driver.find_element_by_xpath("//select[contains(@class,'fill-width')]/option[6]").click()
-        driver.find_element_by_xpath("//textarea[contains(@class,'fill-width')]").send_keys(passphrase)
-        driver.find_element_by_xpath("//input[contains(@placeholder,'Answer to the question')]").send_keys(i)
+        driver.find_element(By.XPATH, "//select[contains(@class,'fill-width')]/option[6]").click()
+        driver.find_element(By.XPATH,"//textarea[contains(@class,'fill-width')]").send_keys(passphrase)
+        driver.find_element(By.XPATH,"//input[contains(@placeholder,'Answer to the question')]").send_keys(i)
 
     # We log in the browser console the last mission inserted just in case we need to remember it
     wait_for_it(driver, "//div[contains(@class,'number') and text() = 6]", By.XPATH, timeout=3600)
-    ultima_missione = driver.find_elements_by_class_name('title')[-1]
+    ultima_missione = driver.find_elements(By.CLASS_NAME, 'title')[-1]
     ultima_missione = ultima_missione.text.replace("\"", "\\\"").replace("'", "\\'")
     driver.execute_script(f'console.log("{ultima_missione}")')
 
